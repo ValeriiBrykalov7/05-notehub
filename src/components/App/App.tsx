@@ -14,11 +14,11 @@ import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
 import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
-import ReactPaginate from "react-paginate";
 import { createNote, deleteNote, fetchNotes } from "../../services/noteService";
 
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import Pagination from "../Pagination/Pagination";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,16 +73,10 @@ export default function App() {
       <header className={css.toolbar}>
         <SearchBox value={query} onChange={setQuery} />
         {notes.length > 0 && totalPages > 0 && (
-          <ReactPaginate
-            pageCount={totalPages}
-            pageRangeDisplayed={5}
-            marginPagesDisplayed={1}
-            onPageChange={({ selected }) => setCurrentPage(selected + 1)}
-            forcePage={currentPage - 1}
-            containerClassName={css.pagination}
-            activeClassName={css.active}
-            nextLabel="→"
-            previousLabel="←"
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
           />
         )}
 
