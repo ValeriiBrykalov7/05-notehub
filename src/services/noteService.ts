@@ -28,8 +28,8 @@ export const fetchNotes = async (
   };
 };
 
-export const createNote = async (newNote: NewNote): Promise<NewNote> => {
-  const response = await axios.post<NewNote>(
+export const createNote = async (newNote: NewNote): Promise<Note> => {
+  const response = await axios.post<Note>(
     "https://notehub-public.goit.study/api/notes",
     newNote,
     {

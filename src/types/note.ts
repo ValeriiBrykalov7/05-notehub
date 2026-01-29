@@ -4,17 +4,11 @@ export interface Note {
   content: string;
   createdAt: string;
   updatedAt: string;
-  tag: string;
-}
-
-export interface FormValues {
-  title: string;
-  content: string;
   tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }
 
 export interface NewNote {
   title: string;
   content: string;
-  tag: string;
+  tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }

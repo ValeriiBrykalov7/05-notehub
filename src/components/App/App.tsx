@@ -1,20 +1,13 @@
 import css from "./App.module.css";
 import { useState } from "react";
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import type { FormikHelpers } from "formik";
-import type { FormValues, NewNote } from "../../types/note";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
 import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
-import { createNote, deleteNote, fetchNotes } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
@@ -38,40 +31,14 @@ export default function App() {
   const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 0;
 
-  const queryClient = useQueryClient();
-
-  const createNoteMutation = useMutation({
-    mutationFn: (newNote: NewNote) => createNote(newNote),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    },
-  });
-
-  const handleSubmit = (
-    values: FormValues,
-    actions: FormikHelpers<FormValues>,
-  ) => {
-    createNoteMutation.mutate(values);
-    actions.resetForm();
-    setIsModalOpen(false);
+  const changeQuery = (query: string) => {
+    setQuery(query);
+    setCurrentPage(1);
   };
-
-  const deleteNoteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notes"],
-      });
-    },
-  });
-  const handleDelete = (id: string) => {
-    deleteNoteMutation.mutate(id);
-  };
-
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={query} onChange={setQuery} />
+        <SearchBox value={query} onChange={changeQuery} />
         {notes.length > 0 && totalPages > 0 && (
           <Pagination
             totalPages={totalPages}
@@ -84,13 +51,13 @@ export default function App() {
           Create note +
         </button>
       </header>
-      {notes.length > 0 && <NoteList notes={notes} onDelete={handleDelete} />}
+      {notes.length > 0 && <NoteList notes={notes} />}
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {isModalOpen && (
         <Modal
           onClose={closeModal}
-          children={<NoteForm onClose={closeModal} onSubmit={handleSubmit} />}
+          children={<NoteForm onClose={closeModal} />}
         />
       )}
     </div>

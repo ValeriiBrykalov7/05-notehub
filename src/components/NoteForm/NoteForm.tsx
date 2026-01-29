@@ -1,15 +1,16 @@
 import { Formik, Form, Field, type FormikHelpers, ErrorMessage } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
 import { useId } from "react";
-import type { FormValues } from "../../types/note";
+import type { NewNote } from "../../types/note";
 import * as Yup from "yup";
+import { createNote } from "../../services/noteService";
 
 interface NoteFormProps {
   onClose: () => void;
-  onSubmit: (values: FormValues, actions: FormikHelpers<FormValues>) => void;
 }
 
-const initialValues: FormValues = {
+const initialValues: NewNote = {
   title: "",
   content: "",
   tag: "Todo",
@@ -29,14 +30,28 @@ const validationSchema = Yup.object().shape({
     .required("Delivery method is required"),
 });
 
-export default function NoteForm({ onClose, onSubmit }: NoteFormProps) {
+export default function NoteForm({ onClose }: NoteFormProps) {
   const fieldId = useId();
 
+  const queryClient = useQueryClient();
+
+  const createNoteMutation = useMutation({
+    mutationFn: (newNote: NewNote) => createNote(newNote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
+
+  const handleSubmit = (values: NewNote, actions: FormikHelpers<NewNote>) => {
+    createNoteMutation.mutate(values);
+    actions.resetForm();
+    onClose();
+  };
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
       <Form className={css.form}>
         <div className={css.formGroup}>
